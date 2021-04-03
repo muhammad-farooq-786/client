@@ -3,13 +3,11 @@ package com.example.client.clientClass;
 import com.example.client.model.Person;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,16 +40,27 @@ public class demoClass {
 
     }
 
+
+
     @GetMapping("/personsList")
-    public ResponseEntity<Person> getClients(){
+    public ResponseEntity<List<Person>> getProfiles() {
 
         final String url = "http://localhost:8081/personsList";
-
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<Person> responseEntity = restTemplate.getForEntity(url, Person.class);
-
-        return  responseEntity;
+        List<Person> personList = Arrays.asList(restTemplate.getForObject(url, Person[].class));
+        return new ResponseEntity<List<Person>>(personList, HttpStatus.OK);
     }
+
+    //@GetMapping("/personsList")
+//    public ResponseEntity<Person[]> getClients(){
+//
+//        final String url = "http://localhost:8081/personsList";
+//
+//        RestTemplate restTemplate = new RestTemplate();
+//        ResponseEntity<List<Person>> responseEntity = restTemplate.getForEntity(url, Person.class[]);
+//
+//        return  responseEntity;
+//    }
 
     @GetMapping("/person/{id}")
     public Person getPersonById(@PathVariable("id") int id){
@@ -65,32 +74,26 @@ public class demoClass {
 
     @PostMapping("/insertPersonURL/{id}/{name}")
     public void insertPersonURL(@PathVariable int id,@PathVariable String name){
-        final String url = "http://localhost:8081/insertPerson/{id}/{name}";
+        final String url = "http://localhost:8081/insertPersonURL/{id}/{name}";
         Person person = new Person(id,name);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
-        int ID = id;
-        String Name = name;
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.postForObject(url,httpEntity,Person.class,person.getId(),person.getName());
     }
 
     @PostMapping("/insertPerson")
-    public void insertPerson() throws JSONException {
+    public void insertPerson(@RequestBody Person person) throws JSONException {
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         JSONObject personJsonObject = new JSONObject();
-        HttpEntity<String> request =
-                new HttpEntity<String>(personJsonObject.toString(), headers);
-
-        personJsonObject.put("id", 1);
-        personJsonObject.put("name", "Hassan");
+        HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
 
         final String url = "http://localhost:8081/insertPerson";
-        restTemplate.postForObject(url, request, String.class,personJsonObject.get("id"),personJsonObject.get("name"));
+        restTemplate.postForObject(url, httpEntity, Person.class);
     }
 
 }
