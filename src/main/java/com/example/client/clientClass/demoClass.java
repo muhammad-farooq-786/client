@@ -1,99 +1,94 @@
 package com.example.client.clientClass;
 
 import com.example.client.model.Person;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/")
 public class demoClass {
 
 
-    @GetMapping("/personsString")
-    public ResponseEntity<String> getClientString() {
-        final String url = "http://localhost:8081/personsString";
 
+    @PostMapping("/addPerson")
+    public ResponseEntity addPerson(@RequestBody Person person){
+        final String url = "http://localhost:8081/addPerson";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> responseEntity = restTemplate.getForEntity(url, String.class);
-
-        return responseEntity;
+        restTemplate.postForObject(url,httpEntity,Person.class);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping("/personObject")
-    public Person getPerson(){
-
-
-        final String url = "http://localhost:8081/personObject";
-
+    @PutMapping("/updatePerson")
+    public ResponseEntity updatePerson(@RequestBody Person person) {
+        final String url = "http://localhost:8081/updatePerson";
         RestTemplate restTemplate = new RestTemplate();
-        Person person = restTemplate.getForObject(url, Person.class);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
 
-        return person;
-
+        restTemplate.put(url,person);
+        //restTemplate.postForObject(url, httpEntity, Person.class);
+        return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/getAllPersons")
+    public ResponseEntity<List<Person>> getAllPersons(){
 
+        final String url = "http://localhost:8081/getAllPersons";
 
-    @GetMapping("/personsList")
-    public ResponseEntity<List<Person>> getProfiles() {
-
-        final String url = "http://localhost:8081/personsList";
         RestTemplate restTemplate = new RestTemplate();
         List<Person> personList = Arrays.asList(restTemplate.getForObject(url, Person[].class));
+
         return new ResponseEntity<List<Person>>(personList, HttpStatus.OK);
     }
 
-    //@GetMapping("/personsList")
-//    public ResponseEntity<Person[]> getClients(){
+//    @GetMapping("getPersonByName/{name}")
+//    public ResponseEntity<Person> getPersonByName(@PathVariable String name){
 //
-//        final String url = "http://localhost:8081/personsList";
+//
+//        final String url = "http://localhost:8081/getPersonByName/{name}";
 //
 //        RestTemplate restTemplate = new RestTemplate();
-//        ResponseEntity<List<Person>> responseEntity = restTemplate.getForEntity(url, Person.class[]);
+//        Person person = restTemplate.getForObject(url, Person.class);
 //
-//        return  responseEntity;
+//        return new ResponseEntity<Person>(person, HttpStatus.OK);
+//
 //    }
 
-    @GetMapping("/person/{id}")
-    public Person getPersonById(@PathVariable("id") int id){
-        int params = id;
-        final String url = "http://localhost:8081/person/{id}";
-        RestTemplate restTemplate = new RestTemplate();
-        Person person = restTemplate.getForObject(url, Person.class,params);
+    @GetMapping("getPersonByName/{name}")
+    public ResponseEntity<Person> getPersonByName(@PathVariable String name){
 
-        return person;
+
+        final String url = "http://localhost:8081/getPersonByName/{name}";
+
+        RestTemplate restTemplate = new RestTemplate();
+        Person person = restTemplate.getForObject(url, Person.class, new String[]{name});
+
+        return new ResponseEntity<Person>(person, HttpStatus.OK);
     }
 
-    @PostMapping("/insertPersonURL/{id}/{name}")
-    public void insertPersonURL(@PathVariable int id,@PathVariable String name){
-        final String url = "http://localhost:8081/insertPersonURL/{id}/{name}";
-        Person person = new Person(id,name);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
+    @GetMapping("getPersonById/{id}")
+    public ResponseEntity<Person> getPersonById(@PathVariable String id) {
+
+        final String url = "http://localhost:8081/getPersonById/{id}";
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.postForObject(url,httpEntity,Person.class,person.getId(),person.getName());
+        Person person = restTemplate.getForObject(url, Person.class,new String[]{id});
+        return new ResponseEntity<Person>(person, HttpStatus.OK);
     }
 
-    @PostMapping("/insertPerson")
-    public void insertPerson(@RequestBody Person person) throws JSONException {
-
+    @DeleteMapping("deletePerson/{id}")
+    public ResponseEntity deletePerson(@PathVariable String id){
+        final String url = "http://localhost:8081/deletePerson/{id}";
         RestTemplate restTemplate = new RestTemplate();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        JSONObject personJsonObject = new JSONObject();
-        HttpEntity<Person> httpEntity = new HttpEntity<>(person, headers);
-
-        final String url = "http://localhost:8081/insertPerson";
-        restTemplate.postForObject(url, httpEntity, Person.class);
+        restTemplate.delete(url,new String[]{id});
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

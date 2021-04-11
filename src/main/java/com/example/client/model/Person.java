@@ -1,28 +1,63 @@
 package com.example.client.model;
 
+
 public class Person {
+
+
+    private String ID;
     private String name;
-    private int id;
+    private String email;
+    private String address;
 
-    public Person(){}
-
-    public Person(int id,String name) {
-        this.name = name; this.id=id;
+    public Person() {
     }
 
-    public String getName() {
-        return name;
+    public Person(String ID, String name, String email, String address) {
+        this.ID = ID;
+        this.name = name;
+        this.email = email;
+        this.address=address;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setID(String ID) {
+        this.ID = ID;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public int getId() {
-        return id;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public String getID() {
+        return ID;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    @Override
+    public String toString() {
+        return "Model{" +
+                "ID=" + ID +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
 }
